@@ -37,10 +37,18 @@ export default function DreamCardStudio() {
   const [saveUrl, setSaveUrl] = useState("");
   const [saveMsg, setSaveMsg] = useState("");
   const [canShare, setCanShare] = useState(false);
+  const [canCopy, setCanCopy] = useState(false);
+  const [copyMsg, setCopyMsg] = useState("");
 
   // navigator.canShare 는 브라우저에서만 있으므로 화면이 뜬 뒤 확인합니다.
   useEffect(() => {
     setCanShare(typeof navigator !== "undefined" && typeof navigator.canShare === "function");
+    setCanCopy(
+      typeof window !== "undefined" &&
+        typeof window.ClipboardItem === "function" &&
+        !!navigator.clipboard &&
+        typeof navigator.clipboard.write === "function"
+    );
   }, []);
 
   const quote = pickQuote(dream);
@@ -139,6 +147,22 @@ export default function DreamCardStudio() {
     showSaveImage(
       '저장이 시작되지 않았다면 아래 이미지를 길게 눌러(PC는 오른쪽 클릭) "이미지 저장"을 선택하세요.'
     );
+  };
+
+  // 카톡·문서에 Ctrl+V 로 바로 붙여넣을 수 있게 이미지 자체를 클립보드에 넣습니다.
+  // ClipboardItem 은 클릭과 같은 동작 안에서 만들어야 하므로 Blob 대신 Promise 를 넘깁니다.
+  const copyImage = async () => {
+    setCopyMsg("");
+    try {
+      const item = new ClipboardItem({ "image/png": canvasBlob() });
+      await navigator.clipboard.write([item]);
+      setCopyMsg("복사했습니다. 카카오톡 대화창에서 Ctrl+V 로 붙여넣으세요.");
+      setTimeout(() => setCopyMsg(""), 6000);
+    } catch {
+      showSaveImage(
+        "이 브라우저에서는 복사가 막혀 있습니다. 아래 이미지를 오른쪽 클릭해 \"이미지 복사\"를 선택하세요."
+      );
+    }
   };
 
   // 휴대폰: 사진첩에 바로 저장하거나 카톡·인스타로 보내기
@@ -292,14 +316,28 @@ export default function DreamCardStudio() {
               <button type="button" id="download" className="primary" onClick={download}>
                 이미지 저장
               </button>
+              {canCopy ? (
+                <button type="button" id="copy" className="ghost" onClick={copyImage}>
+                  이미지 복사
+                </button>
+              ) : null}
               {canShare ? (
                 <button type="button" id="share" className="ghost" onClick={share}>
-                  휴대폰에 저장 · 공유
+                  공유하기
                 </button>
               ) : null}
             </div>
+
+            {copyMsg ? (
+              <p className="copymsg" id="copymsg" role="status">
+                {copyMsg}
+              </p>
+            ) : null}
+
             <p className="tiny">
-              사진은 이 브라우저 안에서만 처리되며 서버로 올라가지 않습니다.
+              <b>이미지 복사</b>를 누르면 카카오톡 대화창이나 문서에 <b>Ctrl+V</b>로 바로
+              붙여넣을 수 있습니다. 휴대폰에서는 <b>공유하기</b>로 사진첩에 저장하거나 카톡으로
+              바로 보낼 수 있습니다. 사진은 이 브라우저 안에서만 처리되며 서버로 올라가지 않습니다.
             </p>
 
             {saveUrl ? (
