@@ -39,10 +39,17 @@ export default function DreamCardStudio() {
   const [canShare, setCanShare] = useState(false);
   const [canCopy, setCanCopy] = useState(false);
   const [copyMsg, setCopyMsg] = useState("");
+  const [inApp, setInApp] = useState("");
 
-  // navigator.canShare 는 브라우저에서만 있으므로 화면이 뜬 뒤 확인합니다.
+  // 공유 버튼은 숨기지 않습니다. 기능이 없는 브라우저에서는 눌렀을 때 다른 방법으로 안내합니다.
   useEffect(() => {
-    setCanShare(typeof navigator !== "undefined" && typeof navigator.canShare === "function");
+    setCanShare(true);
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent || "" : "";
+    if (/KAKAOTALK/i.test(ua)) setInApp("카카오톡");
+    else if (/Instagram/i.test(ua)) setInApp("인스타그램");
+    else if (/NAVER\(inapp/i.test(ua)) setInApp("네이버 앱");
+    else if (/FBAN|FBAV/i.test(ua)) setInApp("페이스북");
+    else if (/Line\//i.test(ua)) setInApp("라인");
     setCanCopy(
       typeof window !== "undefined" &&
         typeof window.ClipboardItem === "function" &&
@@ -165,19 +172,43 @@ export default function DreamCardStudio() {
     }
   };
 
-  // 휴대폰: 사진첩에 바로 저장하거나 카톡·인스타로 보내기
+  // 휴대폰 공유. 되는 방법을 차례로 시도하고, 다 안 되면 길게 눌러 저장하도록 안내합니다.
+  const LONG_PRESS_GUIDE =
+    '아래 이미지를 길게 눌러 "이미지 저장"을 선택하면 사진첩에 저장됩니다. 그다음 카카오톡에서 사진으로 보내시면 됩니다.';
+
   const share = async () => {
-    const blob = await canvasBlob();
-    if (!blob) return showSaveImage("이미지를 길게 눌러 저장하세요.");
-    const file = new File([blob], makeFileName(), { type: "image/png" });
-    if (!navigator.canShare || !navigator.canShare({ files: [file] })) {
-      return showSaveImage("이미지를 길게 눌러 저장하세요.");
-    }
+    // 1) 이미지 파일 자체를 공유 (사진첩 저장·카톡 전송이 한 번에 됩니다)
     try {
-      await navigator.share({ files: [file], title: "나의 꿈 카드" });
-    } catch {
-      /* 사용자가 공유를 취소함 */
+      const blob = await canvasBlob();
+      if (blob && typeof navigator.share === "function") {
+        const file = new File([blob], makeFileName(), { type: "image/png" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: "나의 꿈 카드" });
+          return;
+        }
+      }
+    } catch (err) {
+      // 사용자가 공유창을 닫은 경우에는 더 안내하지 않습니다.
+      if (err && err.name === "AbortError") return;
     }
+
+    // 2) 파일 공유가 막혀 있으면 페이지 주소라도 공유
+    try {
+      if (typeof navigator.share === "function") {
+        await navigator.share({
+          title: "꿈 채움 카드",
+          text: "여기에 내 꿈을 적어 카드로 만들어 보세요.",
+          url: window.location.href,
+        });
+        showSaveImage("주소를 공유했습니다. 카드 그림 자체를 보내시려면 " + LONG_PRESS_GUIDE);
+        return;
+      }
+    } catch (err) {
+      if (err && err.name === "AbortError") return;
+    }
+
+    // 3) 공유 기능이 아예 없는 브라우저 (카카오톡 안 브라우저 등)
+    showSaveImage(LONG_PRESS_GUIDE);
   };
 
   return (
@@ -199,6 +230,15 @@ export default function DreamCardStudio() {
       <main className="wrap">
         <div className="studio">
           <section className="panel">
+            {inApp ? (
+              <div className="inapp" id="inapp" role="note">
+                <strong>{inApp} 안의 브라우저로 보고 계십니다.</strong>
+                여기서는 저장과 공유가 막혀 있을 수 있습니다. 화면 오른쪽 위 메뉴(⋮ 또는 ···)에서
+                <b> 다른 브라우저로 열기</b>를 눌러 크롬이나 사파리로 여시면 모든 기능이 정상
+                동작합니다.
+              </div>
+            ) : null}
+
             <div className="step">
               <b>01</b>
               <h2>꿈을 적어보세요</h2>
@@ -342,7 +382,7 @@ export default function DreamCardStudio() {
 
             {saveUrl ? (
               <div className="saveout" id="saveout">
-                <p className="savemsg">{saveMsg}</p>
+                <p className="savemsg" id="savemsg">{saveMsg}</p>
                 {/* 캔버스에서 바로 만든 이미지라 next/image 를 쓰지 않습니다 */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img id="saveimg" src={saveUrl} alt="완성된 꿈 카드 — 길게 눌러 저장하세요" />

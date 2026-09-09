@@ -510,3 +510,20 @@ canvas {
   font-size: 13.5px;
   line-height: 1.5;
 }
+
+/* ---------- 앱 안 브라우저 안내 ---------- */
+.inapp {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1.5px solid var(--gold);
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.inapp strong {
+  display: block;
+  margin-bottom: 4px;
+}
