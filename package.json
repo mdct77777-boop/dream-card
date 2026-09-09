@@ -1,0 +1,20 @@
+{
+  "name": "dream-card",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test:fixtures": "node tests/make-fixtures.js",
+    "test:fit": "node tests/fit.test.js",
+    "test:save": "node tests/save.test.js",
+    "test:text": "node tests/text.test.js"
+  },
+  "dependencies": {
+    "next": "15.5.25",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}

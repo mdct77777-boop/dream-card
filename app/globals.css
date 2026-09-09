@@ -1,0 +1,500 @@
+:root {
+  --paper: #fbf5ee;
+  --paper-2: #fffdfa;
+  --ink: #39304c;
+  --ink-soft: #6e6382;
+  --purple: #6b4aa8;
+  --teal: #2c6b5c;
+  --gold: #c09a45;
+  --line: rgba(107, 74, 168, 0.18);
+  --shadow: 0 18px 50px -24px rgba(57, 48, 76, 0.38);
+  --sky1: #ebddf2;
+  --sky2: #dce7ee;
+  --sky3: #f8e3d4;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #211c2c;
+    --paper-2: #2a2437;
+    --ink: #f1eaf6;
+    --ink-soft: #b5a9c7;
+    --purple: #c0a3f0;
+    --teal: #7bc8b0;
+    --gold: #ddbb6a;
+    --line: rgba(192, 163, 240, 0.22);
+    --shadow: 0 18px 50px -24px rgba(0, 0, 0, 0.7);
+    --sky1: #332a44;
+    --sky2: #26323c;
+    --sky3: #3d3028;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #211c2c;
+  --paper-2: #2a2437;
+  --ink: #f1eaf6;
+  --ink-soft: #b5a9c7;
+  --purple: #c0a3f0;
+  --teal: #7bc8b0;
+  --gold: #ddbb6a;
+  --line: rgba(192, 163, 240, 0.22);
+  --shadow: 0 18px 50px -24px rgba(0, 0, 0, 0.7);
+  --sky1: #332a44;
+  --sky2: #26323c;
+  --sky3: #3d3028;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+}
+
+.wrap {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* ---------- hero ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 64px 24px 56px;
+  text-align: center;
+  background:
+    radial-gradient(60% 80% at 12% 0%, var(--sky1) 0%, transparent 62%),
+    radial-gradient(55% 70% at 92% 18%, var(--sky2) 0%, transparent 60%),
+    radial-gradient(70% 60% at 50% 108%, var(--sky3) 0%, transparent 65%),
+    var(--paper);
+}
+
+.chip {
+  display: inline-block;
+  padding: 6px 20px;
+  border-radius: 999px;
+  border: 1.5px solid var(--gold);
+  color: var(--gold);
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  font-weight: 700;
+}
+
+.hero h1 {
+  font-family: "Black Han Sans", "Apple SD Gothic Neo", sans-serif;
+  font-weight: 400;
+  font-size: clamp(38px, 7vw, 68px);
+  line-height: 1.15;
+  margin: 20px 0 0;
+  text-wrap: balance;
+  letter-spacing: -0.01em;
+}
+
+.hero h1 .t {
+  color: var(--teal);
+}
+
+.hero h1 .p {
+  color: var(--purple);
+}
+
+.hero .lead {
+  margin: 16px auto 0;
+  max-width: 34em;
+  color: var(--ink-soft);
+  font-size: clamp(15px, 1.7vw, 17px);
+}
+
+.divider {
+  margin: 30px auto 0;
+  width: 120px;
+  height: 1px;
+  background: var(--gold);
+  opacity: 0.55;
+}
+
+/* ---------- studio ---------- */
+.studio {
+  display: grid;
+  gap: 36px;
+  margin-top: 44px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .studio {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel {
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 26px;
+  box-shadow: var(--shadow);
+}
+
+.step {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 6px;
+}
+
+.step b {
+  font-family: "Black Han Sans", sans-serif;
+  font-weight: 400;
+  color: var(--gold);
+  font-size: 15px;
+  letter-spacing: 0.08em;
+}
+
+.step h2 {
+  margin: 0;
+  font-size: 19px;
+  font-family: "Gowun Batang", serif;
+  font-weight: 700;
+}
+
+.hint {
+  margin: 0 0 16px;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+}
+
+.field + .field {
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px dashed var(--line);
+}
+
+textarea,
+input[type="text"] {
+  width: 100%;
+  background: transparent;
+  color: var(--ink);
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+textarea:focus,
+input[type="text"]:focus {
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+  border-color: transparent;
+}
+
+textarea {
+  min-height: 110px;
+}
+
+.lbl {
+  display: block;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin: 0 0 8px;
+  letter-spacing: 0.04em;
+}
+
+.drop {
+  margin-top: 10px;
+  border: 1.5px dashed var(--line);
+  border-radius: 16px;
+  padding: 22px;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.drop:hover,
+.drop.on {
+  border-color: var(--purple);
+  background: color-mix(in srgb, var(--purple) 7%, transparent);
+}
+
+.drop strong {
+  display: block;
+  color: var(--ink);
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.thumbrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.thumbrow img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+}
+
+.thumbrow span {
+  font-size: 13px;
+  color: var(--ink-soft);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btnrow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 26px;
+}
+
+button {
+  font-family: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 13px 26px;
+  border: 1.5px solid transparent;
+  transition: transform 0.12s, opacity 0.12s;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 3px;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+.primary {
+  background: var(--purple);
+  color: #fff;
+  font-weight: 700;
+  flex: 1;
+  min-width: 170px;
+}
+
+.ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.ghost:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.mini {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.tiny {
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+
+/* ---------- preview ---------- */
+.stage {
+  position: sticky;
+  top: 20px;
+}
+
+.stage .cap {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 12px;
+  color: var(--ink-soft);
+  letter-spacing: 0.14em;
+  margin-bottom: 10px;
+}
+
+canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--line);
+  background: #fbf5ee;
+}
+
+.quotebox {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border-left: 3px solid var(--gold);
+  background: color-mix(in srgb, var(--gold) 8%, transparent);
+  border-radius: 0 12px 12px 0;
+}
+
+.quotebox em {
+  display: block;
+  font-family: "Gowun Batang", serif;
+  font-style: normal;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.quotebox small {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+}
+
+/* ---------- footer ---------- */
+.foot {
+  margin-top: 56px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.foot b {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* ---------- 사진 맞춤 방식 선택 ---------- */
+.thumbrow .ratio {
+  display: block;
+  font-style: normal;
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  opacity: 0.8;
+}
+
+.fitrow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px dashed var(--line);
+}
+
+.seg {
+  text-align: left;
+  border-radius: 14px;
+  padding: 12px 16px;
+  background: transparent;
+  border: 1.5px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 14.5px;
+  line-height: 1.35;
+}
+
+.seg small {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  opacity: 0.85;
+}
+
+.seg:hover {
+  border-color: var(--purple);
+}
+
+.seg.on {
+  border-color: var(--purple);
+  color: var(--purple);
+  font-weight: 700;
+  background: color-mix(in srgb, var(--purple) 8%, transparent);
+}
+
+/* ---------- 저장 안내 ---------- */
+.saveout {
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1.5px solid var(--gold);
+  background: color-mix(in srgb, var(--gold) 8%, transparent);
+}
+
+.savemsg {
+  margin: 0 0 12px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.saveout img {
+  display: block;
+  width: 100%;
+  max-width: 260px;
+  margin: 0 auto;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.savelink {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--purple);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------- 글자수 표시 ---------- */
+.lbl {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.count {
+  font-style: normal;
+  font-size: 12px;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
