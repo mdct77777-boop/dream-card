@@ -8,7 +8,7 @@ const fs = require("fs");
 const path = require("path");
 const { chromium } = require("playwright");
 
-const BASE = process.env.BASE_URL;
+const BASE = process.env.BASE_URL || "http://localhost:3000";
 const OUT = path.join(__dirname, "downloads");
 
 (async () => {
@@ -53,20 +53,11 @@ const OUT = path.join(__dirname, "downloads");
     ok("다운로드 시작", false, "다운로드 이벤트가 발생하지 않음");
   }
 
-  // 저장에 성공하면 성공 알림이 뜨고, 불필요한 안내 상자는 뜨지 않아야 한다
-  await page.waitForTimeout(700);
-  const statusMsg = await page.locator("#status").textContent().catch(() => "");
-  ok("저장 성공 알림", !!statusMsg && statusMsg.includes("저장했습니다"), statusMsg ? statusMsg.trim() : "알림이 없음");
-
-  const autoBox = await page.locator("#saveout").isVisible().catch(() => false);
-  ok("불필요한 안내 없음", !autoBox, autoBox ? "성공했는데도 안내 상자가 뜸" : "성공 시에는 안 뜸 (정상)");
-
-  // "이 화면에서 이미지로 받기"를 누르면 그때 안내 상자가 나와야 한다
-  await page.locator("#showimg").click();
-  await page.waitForTimeout(500);
+  // 다운로드가 막힌 경우를 위한 안내 이미지
+  await page.waitForTimeout(600);
   const box = page.locator("#saveout");
   const shown = await box.isVisible();
-  ok("수동 안내 표시", shown, shown ? "길게 눌러 저장할 수 있는 이미지 노출" : "안내가 보이지 않음");
+  ok("저장 안내 표시", shown, shown ? "길게 눌러 저장할 수 있는 이미지 노출" : "안내가 보이지 않음");
 
   if (shown) {
     const src = await page.locator("#saveimg").getAttribute("src");

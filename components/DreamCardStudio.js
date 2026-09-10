@@ -29,6 +29,7 @@ export default function DreamCardStudio() {
   const fileRef = useRef(null);
   const imageRef = useRef(null);
   const statusTimer = useRef(null);
+  const mascotRef = useRef(null);
 
   const [dream, setDream] = useState(SAMPLE_DREAM);
   const [who, setWho] = useState(SAMPLE_WHO);
@@ -83,7 +84,14 @@ export default function DreamCardStudio() {
     const cv = canvasRef.current;
     if (!cv) return;
     const ctx = cv.getContext("2d");
-    const info = drawCard(ctx, { dream, who, image: imageRef.current, fit, quote });
+    const info = drawCard(ctx, {
+      dream,
+      who,
+      image: imageRef.current,
+      mascot: mascotRef.current,
+      fit,
+      quote,
+    });
     // 카드에 실제로 그려진 줄 — 자동 검증에서 글자가 빠지지 않았는지 확인할 때 씁니다.
     if (typeof window !== "undefined") window.__dreamCard = info;
   }, [dream, who, fit, quote]);
@@ -92,6 +100,16 @@ export default function DreamCardStudio() {
   useEffect(() => {
     render();
   }, [render, tick]);
+
+  // 브랜드 마스코트를 미리 불러오고, 준비되면 카드를 다시 그립니다.
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => {
+      mascotRef.current = img;
+      setTick((n) => n + 1);
+    };
+    img.src = "/mascot.png";
+  }, []);
 
   // 웹폰트가 늦게 도착하면 폰트가 적용된 상태로 한 번 더 그립니다.
   useEffect(() => {

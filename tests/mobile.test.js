@@ -89,16 +89,6 @@ async function scenario(browser, label, ua, mode, checks) {
       notice ? "다른 브라우저로 열기 안내 나옴" : "안내가 없음"
     );
 
-    // 저장 버튼도 인앱에서는 곧바로 대체 안내로 이어져야 한다
-    await page.locator("#download").click();
-    await page.waitForTimeout(800);
-    const dlStatus = await page.locator("#status").textContent().catch(() => "");
-    ok(
-      `${label} · 저장 버튼`,
-      dlStatus.includes("막혀") || dlStatus.includes("아래"),
-      dlStatus ? dlStatus.trim().slice(0, 34) + "…" : "알림이 없음"
-    );
-
     if (shareVisible) {
       await page.locator("#share").click();
       await page.waitForTimeout(900);

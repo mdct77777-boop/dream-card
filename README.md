@@ -152,7 +152,8 @@ app/
 components/
   DreamCardStudio.js   입력 폼, 사진 업로드, 미리보기, 저장·공유
 public/
-  icon-192.png · icon-512.png · apple-touch-icon.png   홈 화면 아이콘
+  mascot.png                                           놀스테이 마스코트(우산 쓴 고양이) — 카드 응원 밴드에 그려짐
+  icon-192.png · icon-512.png · apple-touch-icon.png   홈 화면 아이콘 (마스코트로 제작)
 lib/
   draw.js        카드 한 장을 캔버스에 그리는 코드 (fitRect 가 사진 맞춤 계산)
   quotes.js      주제별 명언 은행과 문장 고르는 규칙
