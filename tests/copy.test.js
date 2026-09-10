@@ -86,8 +86,8 @@ const BASE = process.env.BASE_URL || "http://localhost:3000";
   }
 
   // 복사했다는 안내가 화면에 뜨는지
-  const msg = await page.locator("#copymsg").textContent().catch(() => "");
-  ok("복사 안내 문구", !!msg && msg.includes("붙여넣"), msg ? msg.trim() : "안내가 없음");
+  const msg = await page.locator("#status").textContent().catch(() => "");
+  ok("복사 안내 문구", !!msg && msg.includes("Ctrl+V"), msg ? msg.trim() : "안내가 없음");
 
   // 복사 후에도 저장이 여전히 되는지
   const [dl] = await Promise.all([

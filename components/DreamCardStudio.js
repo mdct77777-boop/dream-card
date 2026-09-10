@@ -7,6 +7,9 @@ import { pickQuote } from "@/lib/quotes";
 const SAMPLE_DREAM = "3년 안에 바다가 보이는 작은 숙소의 주인이 되기";
 const SAMPLE_WHO = "길원의 꿈";
 
+const LONG_PRESS_GUIDE =
+  '아래 이미지를 길게 눌러(PC는 오른쪽 클릭) "이미지 저장"을 선택하면 됩니다. 그다음 카카오톡에서 사진으로 보내세요.';
+
 /** 올린 사진의 크기를 사람이 읽기 쉬운 비율로 알려 줍니다. */
 function describeRatio(w, h) {
   const r = w / h;
@@ -25,6 +28,7 @@ export default function DreamCardStudio() {
   const canvasRef = useRef(null);
   const fileRef = useRef(null);
   const imageRef = useRef(null);
+  const statusTimer = useRef(null);
 
   const [dream, setDream] = useState(SAMPLE_DREAM);
   const [who, setWho] = useState(SAMPLE_WHO);
@@ -38,7 +42,7 @@ export default function DreamCardStudio() {
   const [saveMsg, setSaveMsg] = useState("");
   const [canShare, setCanShare] = useState(false);
   const [canCopy, setCanCopy] = useState(false);
-  const [copyMsg, setCopyMsg] = useState("");
+  const [status, setStatus] = useState(null);
   const [inApp, setInApp] = useState("");
 
   // 공유 버튼은 숨기지 않습니다. 기능이 없는 브라우저에서는 눌렀을 때 다른 방법으로 안내합니다.
@@ -121,7 +125,14 @@ export default function DreamCardStudio() {
       cv.toBlob(resolve, "image/png");
     });
 
-  // 다운로드가 막힌 환경(앱 안 미리보기 등)을 위해 완성 이미지를 화면에 띄웁니다.
+  // 저장·복사·공유의 결과를 버튼 바로 아래 한 곳에서 알려 줍니다.
+  const flash = (kind, msg) => {
+    setStatus({ kind, msg });
+    if (statusTimer.current) clearTimeout(statusTimer.current);
+    statusTimer.current = setTimeout(() => setStatus(null), 9000);
+  };
+
+  // 저장이 막힌 환경을 위해 완성 이미지를 화면에 띄웁니다. (길게 눌러 저장)
   const showSaveImage = (message) => {
     const cv = canvasRef.current;
     if (!cv) return;
@@ -132,49 +143,62 @@ export default function DreamCardStudio() {
   const download = async () => {
     const cv = canvasRef.current;
     if (!cv) return;
-    const name = makeFileName();
+
+    // 앱 안 브라우저는 다운로드가 막혀 있으므로 곧바로 길게 눌러 저장하도록 안내합니다.
+    if (inApp) {
+      flash("warn", `${inApp} 안 브라우저는 저장이 막혀 있습니다. 아래 방법으로 저장하세요.`);
+      showSaveImage(LONG_PRESS_GUIDE);
+      return;
+    }
 
     try {
       const blob = await canvasBlob();
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = name;
-        a.rel = "noopener";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 8000);
-      }
+      if (!blob) throw new Error("no blob");
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = makeFileName();
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 8000);
+      flash("ok", `저장했습니다. 브라우저의 다운로드 폴더에서 ${makeFileName()} 을 확인하세요.`);
     } catch {
-      /* 아래 안내로 넘어갑니다 */
+      flash("warn", "저장이 막혀 있습니다. 아래 이미지로 저장하세요.");
+      showSaveImage(LONG_PRESS_GUIDE);
     }
-
-    showSaveImage(
-      '저장이 시작되지 않았다면 아래 이미지를 길게 눌러(PC는 오른쪽 클릭) "이미지 저장"을 선택하세요.'
-    );
   };
 
   // 카톡·문서에 Ctrl+V 로 바로 붙여넣을 수 있게 이미지 자체를 클립보드에 넣습니다.
   // ClipboardItem 은 클릭과 같은 동작 안에서 만들어야 하므로 Blob 대신 Promise 를 넘깁니다.
   const copyImage = async () => {
-    setCopyMsg("");
     try {
       const item = new ClipboardItem({ "image/png": canvasBlob() });
       await navigator.clipboard.write([item]);
-      setCopyMsg("복사했습니다. 카카오톡 대화창에서 Ctrl+V 로 붙여넣으세요.");
-      setTimeout(() => setCopyMsg(""), 6000);
+      flash("ok", "복사했습니다. 카카오톡 대화창을 클릭한 뒤 Ctrl+V 를 누르세요.");
     } catch {
+      flash("warn", "이 브라우저에서는 복사가 막혀 있습니다. 아래 이미지를 오른쪽 클릭해 \"이미지 복사\"를 선택하세요.");
       showSaveImage(
-        "이 브라우저에서는 복사가 막혀 있습니다. 아래 이미지를 오른쪽 클릭해 \"이미지 복사\"를 선택하세요."
+        '아래 이미지를 오른쪽 클릭해 "이미지 복사" 또는 "다른 이름으로 저장"을 선택하세요.'
       );
     }
   };
 
-  // 휴대폰 공유. 되는 방법을 차례로 시도하고, 다 안 되면 길게 눌러 저장하도록 안내합니다.
-  const LONG_PRESS_GUIDE =
-    '아래 이미지를 길게 눌러 "이미지 저장"을 선택하면 사진첩에 저장됩니다. 그다음 카카오톡에서 사진으로 보내시면 됩니다.';
+  // 어떤 브라우저에서도 통하는 마지막 수단 — 카드를 새 탭에 그대로 띄웁니다.
+  const openInNewTab = async () => {
+    const blob = await canvasBlob();
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, "_blank", "noopener");
+    if (!win) {
+      flash("warn", "새 탭이 차단되었습니다. 아래 이미지를 눌러 저장하세요.");
+      showSaveImage(LONG_PRESS_GUIDE);
+    } else {
+      flash("ok", "새 탭에 카드를 열었습니다. 그 화면에서 저장하거나 복사하세요.");
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  };
 
   const share = async () => {
     // 1) 이미지 파일 자체를 공유 (사진첩 저장·카톡 전송이 한 번에 됩니다)
@@ -200,7 +224,8 @@ export default function DreamCardStudio() {
           text: "여기에 내 꿈을 적어 카드로 만들어 보세요.",
           url: window.location.href,
         });
-        showSaveImage("주소를 공유했습니다. 카드 그림 자체를 보내시려면 " + LONG_PRESS_GUIDE);
+        flash("ok", "주소를 공유했습니다.");
+        showSaveImage("카드 그림 자체를 보내시려면 " + LONG_PRESS_GUIDE);
         return;
       }
     } catch (err) {
@@ -208,6 +233,7 @@ export default function DreamCardStudio() {
     }
 
     // 3) 공유 기능이 아예 없는 브라우저 (카카오톡 안 브라우저 등)
+    flash("warn", "이 브라우저는 공유 기능이 없습니다. 아래 방법으로 보내세요.");
     showSaveImage(LONG_PRESS_GUIDE);
   };
 
@@ -368,11 +394,27 @@ export default function DreamCardStudio() {
               ) : null}
             </div>
 
-            {copyMsg ? (
-              <p className="copymsg" id="copymsg" role="status">
-                {copyMsg}
+            {status ? (
+              <p className={status.kind === "ok" ? "status ok" : "status warn"} id="status" role="status">
+                {status.msg}
               </p>
             ) : null}
+
+            <p className="alt">
+              잘 안 되나요?{" "}
+              <button type="button" className="linkbtn" id="opentab" onClick={openInNewTab}>
+                새 탭에서 카드 열기
+              </button>
+              <span aria-hidden="true"> · </span>
+              <button
+                type="button"
+                className="linkbtn"
+                id="showimg"
+                onClick={() => showSaveImage(LONG_PRESS_GUIDE)}
+              >
+                이 화면에서 이미지로 받기
+              </button>
+            </p>
 
             <p className="tiny">
               <b>이미지 복사</b>를 누르면 카카오톡 대화창이나 문서에 <b>Ctrl+V</b>로 바로
