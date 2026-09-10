@@ -44,6 +44,9 @@ export default function DreamCardStudio() {
   const [canCopy, setCanCopy] = useState(false);
   const [status, setStatus] = useState(null);
   const [inApp, setInApp] = useState("");
+  const [openHref, setOpenHref] = useState("");
+  const [openLabel, setOpenLabel] = useState("");
+  const [host, setHost] = useState("dream.nolstay.com");
 
   // 공유 버튼은 숨기지 않습니다. 기능이 없는 브라우저에서는 눌렀을 때 다른 방법으로 안내합니다.
   useEffect(() => {
@@ -54,6 +57,18 @@ export default function DreamCardStudio() {
     else if (/NAVER\(inapp/i.test(ua)) setInApp("네이버 앱");
     else if (/FBAN|FBAV/i.test(ua)) setInApp("페이스북");
     else if (/Line\//i.test(ua)) setInApp("라인");
+
+    // 앱 안 브라우저에서 한 번에 크롬(안드로이드)·사파리(아이폰)로 넘어가는 주소
+    const here = window.location.href;
+    if (window.location.host) setHost(window.location.host);
+    if (/iPhone|iPad|iPod/i.test(ua)) {
+      setOpenHref("x-safari-" + here);
+      setOpenLabel("사파리에서 열기");
+    } else {
+      const bare = here.replace(/^https?:\/\//, "");
+      setOpenHref(`intent://${bare}#Intent;scheme=https;package=com.android.chrome;end`);
+      setOpenLabel("크롬에서 열기");
+    }
     setCanCopy(
       typeof window !== "undefined" &&
         typeof window.ClipboardItem === "function" &&
@@ -185,6 +200,17 @@ export default function DreamCardStudio() {
     }
   };
 
+  // 주소창에 직접 붙여넣을 수 있게 페이지 주소를 복사합니다.
+  const copyAddress = async () => {
+    const url = window.location.origin + "/";
+    try {
+      await navigator.clipboard.writeText(url);
+      flash("ok", `주소를 복사했습니다. 크롬 주소창에 붙여넣으세요. (${url.replace(/^https?:\/\//, "")})`);
+    } catch {
+      flash("warn", `주소를 직접 입력해 주세요 — ${url.replace(/^https?:\/\//, "")}`);
+    }
+  };
+
   // 어떤 브라우저에서도 통하는 마지막 수단 — 카드를 새 탭에 그대로 띄웁니다.
   const openInNewTab = async () => {
     const blob = await canvasBlob();
@@ -259,9 +285,19 @@ export default function DreamCardStudio() {
             {inApp ? (
               <div className="inapp" id="inapp" role="note">
                 <strong>{inApp} 안의 브라우저로 보고 계십니다.</strong>
-                여기서는 저장과 공유가 막혀 있을 수 있습니다. 화면 오른쪽 위 메뉴(⋮ 또는 ···)에서
-                <b> 다른 브라우저로 열기</b>를 눌러 크롬이나 사파리로 여시면 모든 기능이 정상
+                여기서는 저장과 공유가 막혀 있습니다. 아래 버튼으로 넘어가시면 모든 기능이 정상
                 동작합니다.
+                <span className="inapprow">
+                  <a className="inappbtn" id="openbrowser" href={openHref}>
+                    {openLabel}
+                  </a>
+                  <button type="button" className="inappbtn ghostbtn" id="copyaddr" onClick={copyAddress}>
+                    주소 복사
+                  </button>
+                </span>
+                <span className="addr">
+                  버튼이 안 되면 주소창에 <b id="plainaddr">{host}</b> 을 직접 입력하세요.
+                </span>
               </div>
             ) : null}
 
@@ -456,7 +492,12 @@ export default function DreamCardStudio() {
         </div>
 
         <div className="foot">
-          <span>꿈은 적는 순간, 방향이 됩니다.</span>
+          <span>
+            꿈은 적는 순간, 방향이 됩니다.
+            <em className="tip">
+              휴대폰에서 브라우저 메뉴의 <b>홈 화면에 추가</b>를 누르면 앱처럼 바로 열립니다.
+            </em>
+          </span>
           <span>
             <b>우산 쓴 고양이</b> 놀스테이(구, 모텔사랑) 대표 이길원 · 잘잘잘tv
           </span>

@@ -4,6 +4,15 @@ export const metadata = {
   title: "꿈 채움 카드 | 놀스테이",
   description:
     "빈칸에 꿈을 적거나 사진을 올리면 9:16 세로 카드로 다시 그려주고, 어울리는 오늘의 명언 한 문장과 화이팅 응원을 함께 담아 드립니다.",
+  applicationName: "꿈 채움 카드",
+  appleWebApp: { capable: true, title: "꿈 카드", statusBarStyle: "default" },
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title: "꿈 채움 카드",
     description: "꿈은 적는 순간, 방향이 됩니다.",

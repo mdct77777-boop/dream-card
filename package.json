@@ -12,7 +12,8 @@
     "test:save": "node tests/save.test.js",
     "test:text": "node tests/text.test.js",
     "test:copy": "node tests/copy.test.js",
-    "test:mobile": "node tests/mobile.test.js"
+    "test:mobile": "node tests/mobile.test.js",
+    "test:phone": "node tests/phone.test.js"
   },
   "dependencies": {
     "next": "15.5.25",
